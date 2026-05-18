@@ -9,14 +9,22 @@ import { cardReveal } from '@/animations/variants.js'
 
 const MemoryModal = lazy(() => import('@/components/memories/MemoryModal.jsx'))
 
-const HEIGHT_CLASSES = ['h-52', 'h-64', 'h-72', 'h-80', 'h-96', 'h-[22rem]', 'h-60', 'h-[18rem]']
+/** Varied aspect ratios for masonry; capped on mobile so tall portraits don't overflow */
+const ASPECT_CLASSES = [
+  'aspect-[3/4]',
+  'aspect-[4/5]',
+  'aspect-square',
+  'aspect-[2/3]',
+  'aspect-[5/6]',
+  'aspect-[3/5]',
+]
 
 function hashIndex(id = '') {
   return [...String(id)].reduce((acc, ch) => acc + ch.charCodeAt(0), 0)
 }
 
-function getCardHeightClass(id) {
-  return HEIGHT_CLASSES[hashIndex(id) % HEIGHT_CLASSES.length]
+function getAspectClass(id) {
+  return ASPECT_CLASSES[hashIndex(id) % ASPECT_CLASSES.length]
 }
 
 function GlassAction({ label, onClick, children, className = '' }) {
@@ -49,10 +57,9 @@ export function MasonryMemoryCard({ memory, onUpdate, commentCount, index = 0 })
   const author = memory.author
   const img = memory.images?.[0]
   const eventLabel = memory.eventCategory || memory.event || 'Memory'
-  const heightClass = getCardHeightClass(memory._id)
+  const aspectClass = getAspectClass(memory._id)
   const nostalgic = isOldMemory(memory.memoryDate) || hashIndex(memory._id) % 4 === 0
   const likeCount = memory.likesCount ?? memory.likes?.length ?? 0
-  const comments = commentCount ?? memory.commentCount ?? memory.comments?.length ?? 0
   const uploadedAt = memory.memoryDate ? formatRelative(memory.memoryDate) : formatRelative(memory.createdAt)
 
   const handleLike = async (e) => {
@@ -88,43 +95,36 @@ export function MasonryMemoryCard({ memory, onUpdate, commentCount, index = 0 })
         transition={{ delay: Math.min(index * 0.04, 0.35) }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        whileHover={{ y: -4 }}
-        className="group relative mb-4 break-inside-avoid cursor-pointer"
+        className="group relative mb-4 break-inside-avoid cursor-pointer w-full"
         onClick={openModal}
       >
-        <motion.div
-          className={`relative overflow-hidden rounded-2xl bg-stone-100 shadow-[0_2px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(234,88,12,0.12)] transition-shadow duration-500 ${heightClass}`}
+        <div
+          className={`relative w-full overflow-hidden rounded-2xl bg-stone-200 isolate shadow-[0_2px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(234,88,12,0.12)] transition-shadow duration-500 ${aspectClass} max-h-[min(300px,78vw)] sm:max-h-[22rem]`}
         >
-          <motion.img
+          <img
             src={img}
             alt={memory.title || 'Memory'}
             loading="lazy"
             decoding="async"
-            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out ${
+            className={`absolute inset-0 w-full h-full object-cover object-center transition-all duration-700 ease-out ${
               nostalgic
-                ? 'grayscale-[0.85] contrast-[1.05] brightness-[0.92] group-hover:grayscale-[0.15] group-hover:brightness-100'
-                : 'grayscale-0'
-            } ${hovered ? 'scale-[1.04]' : 'scale-100'}`}
+                ? 'grayscale-[0.85] contrast-[1.05] brightness-[0.92] sm:group-hover:grayscale-[0.15] sm:group-hover:brightness-100'
+                : ''
+            } ${hovered ? 'sm:scale-[1.03]' : ''}`}
           />
 
           {nostalgic && (
-            <motion.div
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(28,25,23,0.35)_100%)] mix-blend-multiply"
-              animate={{ opacity: hovered ? 0.35 : 0.55 }}
-              transition={{ duration: 0.5 }}
-            />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(28,25,23,0.3)_100%)] opacity-50 sm:group-hover:opacity-35 transition-opacity duration-500" />
           )}
 
-          <motion.div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"
-            animate={{ opacity: hovered ? 0.95 : 0.85 }}
-            transition={{ duration: 0.35 }}
-          />
+          {/* Top: category badge — never overlaps bottom text */}
+          <div className="absolute top-0 left-0 right-0 z-20 p-2.5 pointer-events-none">
+            <span className="inline-block max-w-[calc(100%-0.5rem)] text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/95 text-stone-700 shadow-sm truncate">
+              {eventLabel}
+            </span>
+          </div>
 
-          <span className="absolute top-3 left-3 z-10 text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/90 text-stone-700 shadow-sm">
-            {eventLabel}
-          </span>
-
+          {/* Desktop-only center hover actions */}
           <AnimatePresence>
             {hovered && (
               <motion.div
@@ -132,7 +132,7 @@ export function MasonryMemoryCard({ memory, onUpdate, commentCount, index = 0 })
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 8 }}
                 transition={{ duration: 0.2 }}
-                className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center gap-2 px-3"
+                className="hidden sm:flex absolute inset-0 z-30 items-center justify-center gap-2 px-3"
                 onClick={(e) => e.stopPropagation()}
               >
                 <GlassAction label="Like" onClick={handleLike}>
@@ -151,50 +151,39 @@ export function MasonryMemoryCard({ memory, onUpdate, commentCount, index = 0 })
             )}
           </AnimatePresence>
 
-          <motion.div
-            className="absolute bottom-0 left-0 right-0 z-10 p-3.5 space-y-2"
-            animate={{ y: hovered ? 0 : 4 }}
-            transition={{ duration: 0.25 }}
-          >
-            <motion.div
-              className="flex items-center gap-2.5"
-              animate={{ opacity: hovered ? 1 : 0.92 }}
-            >
-              <motion.div
-                className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white/40 shrink-0 bg-stone-200"
-                whileHover={{ scale: 1.05 }}
-              >
-                {author?.avatar ? (
-                  <img src={author.avatar} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br from-orange-400 to-amber-600">
-                    {author?.name?.[0]?.toUpperCase() || 'U'}
-                  </div>
-                )}
-              </motion.div>
-              <motion.div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-white truncate leading-tight">
-                  {author?.name || 'Student'}
+          {/* Bottom: title + meta — dedicated gradient panel */}
+          <motion.div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
+            <div className="bg-gradient-to-t from-black/95 via-black/75 to-transparent pt-12 pb-3 px-3 space-y-1.5">
+              {memory.title && (
+                <p className="text-sm font-semibold text-white line-clamp-2 leading-snug drop-shadow-sm">
+                  {memory.title}
                 </p>
-                <p className="text-[11px] text-white/75">{uploadedAt}</p>
-              </motion.div>
-              <div className="flex items-center gap-1 text-white/95 text-xs font-medium shrink-0">
-                <Heart className={`w-3.5 h-3.5 ${liked ? 'fill-ember text-ember' : ''}`} />
-                <span>{likeCount}</span>
+              )}
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-full overflow-hidden ring-2 ring-white/30 shrink-0 bg-stone-300">
+                  {author?.avatar ? (
+                    <img src={author.avatar} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-white bg-gradient-to-br from-orange-400 to-amber-600">
+                      {author?.name?.[0]?.toUpperCase() || 'U'}
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-white truncate">{author?.name || 'Student'}</p>
+                  <p className="text-[10px] text-white/70">{uploadedAt}</p>
+                </div>
+                <div className="flex items-center gap-1 text-white text-xs font-medium shrink-0">
+                  <Heart className={`w-3.5 h-3.5 ${liked ? 'fill-ember text-ember' : ''}`} />
+                  <span>{likeCount}</span>
+                </div>
               </div>
-            </motion.div>
-
-            {memory.description && (
-              <motion.p
-                className="text-xs text-white/85 line-clamp-2 leading-relaxed"
-                initial={false}
-                animate={{ opacity: hovered ? 1 : 0.75 }}
-              >
-                {memory.description}
-              </motion.p>
-            )}
+              {memory.description && (
+                <p className="text-[11px] text-white/80 line-clamp-2 leading-relaxed">{memory.description}</p>
+              )}
+            </div>
           </motion.div>
-        </motion.div>
+        </div>
       </motion.article>
 
       {modalOpen && (

@@ -116,7 +116,7 @@ export default function MemoryModal({ memoryId: initialId, onClose }) {
       >
         <motion.div
           layout
-          className="relative w-full max-w-6xl max-h-[100dvh] sm:max-h-[94vh] overflow-hidden sm:rounded-3xl bg-stone-950/95 border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.5)] flex flex-col lg:flex-row"
+          className="relative w-full max-w-6xl max-h-[100dvh] sm:max-h-[94vh] overflow-hidden sm:rounded-3xl bg-stone-950/95 border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.5)] flex flex-col lg:flex-row min-h-0"
           initial={{ opacity: 0, scale: 0.94, y: 24 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 12 }}
@@ -133,7 +133,7 @@ export default function MemoryModal({ memoryId: initialId, onClose }) {
           </button>
 
           <div
-            className="lg:w-[58%] relative bg-black flex items-center justify-center min-h-[45vh] lg:min-h-0"
+            className="lg:w-[58%] relative bg-black flex items-center justify-center shrink-0 min-h-0 max-h-[42dvh] sm:max-h-[48vh] lg:max-h-none lg:min-h-[45vh] overflow-hidden p-2"
             onClick={() => {
               if (old && !colorized) setColorized(true)
             }}
@@ -142,7 +142,7 @@ export default function MemoryModal({ memoryId: initialId, onClose }) {
               key={img}
               src={img}
               alt={memory.title}
-              className={`max-h-[55vh] lg:max-h-[88vh] w-full object-contain ${showBw ? 'memory-bw' : 'memory-color'}`}
+              className={`max-h-full max-w-full w-auto h-auto object-contain ${showBw ? 'memory-bw' : 'memory-color'}`}
               initial={{ opacity: 0, scale: 1.03 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
@@ -170,8 +170,8 @@ export default function MemoryModal({ memoryId: initialId, onClose }) {
             )}
           </div>
 
-          <div className="lg:w-[42%] flex flex-col min-h-0 border-t lg:border-t-0 lg:border-l border-white/10">
-            <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-5">
+          <div className="lg:w-[42%] flex flex-col min-h-0 flex-1 border-t lg:border-t-0 lg:border-l border-white/10 overflow-hidden">
+            <div className="p-5 sm:p-6 overflow-y-auto flex-1 min-h-0 space-y-5">
               <div className="flex items-center gap-3 pr-10">
                 <div className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-ember/40 bg-stone-800 shrink-0">
                   {memory.author?.avatar ? (

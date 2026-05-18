@@ -25,9 +25,13 @@ export async function fetchRelated(id) {
   return data
 }
 
-export async function createMemory(formData) {
+export async function createMemory(formData, { onUploadProgress } = {}) {
   const { data } = await api.post('/api/memories', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: (event) => {
+      if (!onUploadProgress || !event.total) return
+      onUploadProgress(Math.round((event.loaded * 100) / event.total))
+    },
   })
   return data
 }
