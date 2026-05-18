@@ -118,11 +118,11 @@ export function MasonryMemoryCard({ memory, onUpdate, commentCount, index = 0 })
           )}
 
           {/* Top: category badge — never overlaps bottom text */}
-          <div className="absolute top-0 left-0 right-0 z-20 p-2.5 pointer-events-none">
+          {/* <div className="absolute top-0 left-0 right-0 z-20 p-2.5 pointer-events-none">
             <span className="inline-block max-w-[calc(100%-0.5rem)] text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/95 text-stone-700 shadow-sm truncate">
               {eventLabel}
             </span>
-          </div>
+          </div> */}
 
           {/* Desktop-only center hover actions */}
           <AnimatePresence>
@@ -152,7 +152,7 @@ export function MasonryMemoryCard({ memory, onUpdate, commentCount, index = 0 })
           </AnimatePresence>
 
           {/* Bottom: title + meta — dedicated gradient panel */}
-          <motion.div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
+          {/* <motion.div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
             <div className="bg-gradient-to-t from-black/95 via-black/75 to-transparent pt-12 pb-3 px-3 space-y-1.5">
               {memory.title && (
                 <p className="text-sm font-semibold text-white line-clamp-2 leading-snug drop-shadow-sm">
@@ -182,7 +182,7 @@ export function MasonryMemoryCard({ memory, onUpdate, commentCount, index = 0 })
                 <p className="text-[11px] text-white/80 line-clamp-2 leading-relaxed">{memory.description}</p>
               )}
             </div>
-          </motion.div>
+          </motion.div> */}
         </div>
       </motion.article>
 
